@@ -1,5 +1,6 @@
 import random
 import math
+import hashlib
 
 def is_prime(num):
     if num < 2:
@@ -49,25 +50,30 @@ def random_prime(bitlength):
         if is_prime(num):
             return num
 
-def encrypt(message, public_key):
-    n, e = public_key
-    cipher_text = [(ord(char) ** e) % n for char in message]
-    return cipher_text
-
-def decrypt(cipher_text, private_key):
+def sign(message, private_key):
     n, d = private_key
-    plain_text = [chr((char ** d) % n) for char in cipher_text]
-    return ''.join(plain_text)
+    hashed_message = hashlib.sha256(message.encode()).hexdigest()
+    hashed_message_int = int(hashed_message, 16)
+    signature = pow(hashed_message_int, d, n)
+    return signature
+
+def verify_signature(message, signature, public_key):
+    n, e = public_key
+    hashed_message = hashlib.sha256(message.encode()).hexdigest()
+    hashed_message_int = int(hashed_message, 16)
+    decrypted_signature = pow(signature, e, n)
+    return decrypted_signature == hashed_message_int
+
 
 if __name__ == "__main__":
     public_key, private_key = generate_keypair()
 
     message = "Nargiz, Akniet, Adema"
 
-    encrypted_message = encrypt(message, public_key)
+    signature = sign(message, private_key)
 
-    decrypted_message = decrypt(encrypted_message, private_key)
+    is_valid_signature = verify_signature(message, signature, public_key)
 
     print("Original Message:", message)
-    print("Encrypted Message:", encrypted_message)
-    print("Decrypted Message:", decrypted_message)
+    print("Signature:", signature)
+    print("Is Valid Signature:", is_valid_signature)
