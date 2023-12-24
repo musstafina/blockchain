@@ -1,6 +1,7 @@
 import random
 import math
 import hashlib
+import json
 
 def is_prime(num):
     if num < 2:
@@ -49,6 +50,19 @@ def random_prime(bitlength):
         num = random.getrandbits(bitlength)
         if is_prime(num):
             return num
+        
+def hash_function(data):
+    return hashlib.sha256(data.encode()).hexdigest() 
+ 
+def encrypt(message, public_key): 
+    n, e = public_key 
+    cipher_text = [(ord(char) ** e) % n for char in message] 
+    return cipher_text 
+ 
+def decrypt(cipher_text, private_key): 
+    n, d = private_key 
+    plain_text = [chr((char ** d) % n) for char in cipher_text] 
+    return ''.join(plain_text) 
 
 def sign(message, private_key):
     n, d = private_key
@@ -70,10 +84,10 @@ if __name__ == "__main__":
 
     message = "Nargiz, Akniet, Adema"
 
-    signature = sign(message, private_key)
-
-    is_valid_signature = verify_signature(message, signature, public_key)
-
-    print("Original Message:", message)
-    print("Signature:", signature)
-    print("Is Valid Signature:", is_valid_signature)
+    while True: 
+            print("\n1. Add Transaction") 
+            print("2. Display Blockchain") 
+            print("3. Exit") 
+    
+            choice = input("Enter your choice: ") 
+    
