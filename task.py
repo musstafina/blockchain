@@ -161,7 +161,6 @@ def main():
         elif choice == "2":
             for i, block in enumerate(blockchain.chain):
                 print(f"\nBlock {i + 1}:")
-                print("Timestamp:", format_timestamp(block.timestamp))
                 print("Previous Hash:", block.previous_hash)
                 print("Merkle Root:", block.merkle_root)
                 print("Nonce:", block.nonce)
