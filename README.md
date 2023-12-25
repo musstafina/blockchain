@@ -1,4 +1,4 @@
-# Blockchain Application README
+# Blockchain Command-Line Application README
 
 ## Introduction
 
@@ -37,7 +37,7 @@ The project is organized into the following components:
 
 2. **Run the Application:**
    ```bash
-   python blockchain.py
+   python task.py
    ```
 
 3. **Follow the Menu Options:**
