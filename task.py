@@ -66,17 +66,15 @@ def decrypt(cipher_text, private_key):
 
 def sign(message, private_key):
     n, d = private_key
-    hashed_message = hashlib.sha256(message.encode()).hexdigest()
-    hashed_message_int = int(hashed_message, 16)
-    signature = pow(hashed_message_int, d, n)
+    hashed_message = hash_function(message)
+    signature = [(ord(char) ** d) % n for char in hashed_message]
     return signature
 
 def verify_signature(message, signature, public_key):
     n, e = public_key
-    hashed_message = hashlib.sha256(message.encode()).hexdigest()
-    hashed_message_int = int(hashed_message, 16)
-    decrypted_signature = pow(signature, e, n)
-    return decrypted_signature == hashed_message_int
+    hashed_message = hash_function(message)
+    decrypted_signature = [(char ** e) % n for char in signature]
+    return decrypted_signature == [ord(char) for char in hashed_message]
 
 class Block:
     def __init__(self, previous_hash, transactions):
