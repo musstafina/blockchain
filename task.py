@@ -2,6 +2,8 @@ import random
 import math
 import hashlib
 import json
+import time 
+from datetime import datetime
 
 def is_prime(num):
     if num < 2:
@@ -76,10 +78,14 @@ def verify_signature(message, signature, public_key):
     decrypted_signature = [(char ** e) % n for char in signature]
     return decrypted_signature == [ord(char) for char in hashed_message]
 
+def format_timestamp(timestamp): 
+   return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S.%f')
+
 class Block:
     def __init__(self, previous_hash, transactions):
         self.previous_hash = previous_hash
         self.transactions = transactions
+        self.timestamp = time.time()
         self.merkle_root = self.calculate_merkle_root()
         self.nonce = 0
         self.hash = self.calculate_hash()
@@ -103,15 +109,70 @@ class Blockchain:
         new_block = Block(previous_hash=previous_block.hash, transactions=transactions)
         self.chain.append(new_block)
 
-if __name__ == "__main__":
-    public_key, private_key = generate_keypair()
+# if __name__ == "__main__":
+#     public_key, private_key = generate_keypair()
 
-    message = "Nargiz, Akniet, Adema"
+#     message = "Nargiz, Akniet, Adema"
 
+#     while True: 
+#             print("\n1. Add Transaction") 
+#             print("2. Display Blockchain") 
+#             print("3. Exit") 
+    
+#             choice = input("Enter your choice: ") 
+        
+def main(): 
+    public_key, private_key = generate_keypair() 
+ 
+    blockchain = Blockchain() 
+ 
     while True: 
             print("\n1. Add Transaction") 
             print("2. Display Blockchain") 
             print("3. Exit") 
-    
+ 
             choice = input("Enter your choice: ") 
-    
+ 
+            if choice == "1": 
+                sender = input("Enter sender: ") 
+                receiver = input("Enter receiver: ") 
+                amount = float(input("Enter amount: ")) 
+
+                encrypted_data = encrypt(json.dumps({"sender": sender, "receiver": receiver, "amount": amount}), public_key) 
+
+                signature = sign(json.dumps({"sender": sender, "receiver": receiver, "amount": amount}), private_key) 
+
+                timestamp = time.time() 
+                formatted_timestamp = format_timestamp(timestamp) 
+ 
+                transaction = {"encrypted_data": encrypted_data, "signature": signature, "timestamp": formatted_timestamp} 
+                blockchain.add_block([transaction]) 
+ 
+                print("Transaction added successfully.") 
+ 
+            elif choice == "2": 
+                for i, block in enumerate(blockchain.chain): 
+                    print(f"\nBlock {i + 1}:") 
+                    print("Timestamp:", format_timestamp(block.timestamp)) 
+                    print("Previous Hash:", block.previous_hash) 
+                    print("Merkle Root:", block.merkle_root) 
+                    print("Nonce:", block.nonce) 
+                    print("Hash:", block.hash) 
+                    print("Transactions:") 
+                    for transaction in block.transactions: 
+                        decrypted_data = decrypt(transaction["encrypted_data"], private_key) 
+                        is_valid_signature = verify_signature(decrypted_data, transaction["signature"], public_key) 
+                        print(f"  Sender: {json.loads(decrypted_data)['sender']}") 
+                        print(f"  Receiver: {json.loads(decrypted_data)['receiver']}") 
+                        print(f"  Amount: {json.loads(decrypted_data)['amount']}") 
+                        print(f"  Digital Signature: {'Valid' if is_valid_signature else 'Invalid'}") 
+                        print(f"  Timestamp: {transaction['timestamp']}") 
+ 
+            elif choice == "3": 
+                break 
+ 
+            else: 
+                print("Invalid choice. Please try again.") 
+ 
+if __name__ == "__main__": 
+    main()
