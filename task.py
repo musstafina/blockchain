@@ -78,6 +78,32 @@ def verify_signature(message, signature, public_key):
     decrypted_signature = pow(signature, e, n)
     return decrypted_signature == hashed_message_int
 
+class Block:
+    def __init__(self, previous_hash, transactions):
+        self.previous_hash = previous_hash
+        self.transactions = transactions
+        self.merkle_root = self.calculate_merkle_root()
+        self.nonce = 0
+        self.hash = self.calculate_hash()
+
+    def calculate_merkle_root(self):
+        return hash_function(json.dumps(self.transactions))
+
+    def calculate_hash(self):
+        block_data = f"{self.previous_hash}{self.merkle_root}{self.nonce}"
+        return hash_function(block_data)
+
+class Blockchain:
+    def __init__(self):
+        self.chain = [self.create_genesis_block()]
+
+    def create_genesis_block(self):
+        return Block(previous_hash="0", transactions=[])
+
+    def add_block(self, transactions):
+        previous_block = self.chain[-1]
+        new_block = Block(previous_hash=previous_block.hash, transactions=transactions)
+        self.chain.append(new_block)
 
 if __name__ == "__main__":
     public_key, private_key = generate_keypair()
