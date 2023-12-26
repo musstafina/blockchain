@@ -97,13 +97,14 @@ def format_timestamp(timestamp):
 
 # Class representing a block in a blockchain
 class Block:
-    def __init__(self, previous_hash, transactions):
+    def __init__(self, previous_hash, transactions, transaction_fees):
         self.previous_hash = previous_hash
         self.transactions = transactions
         self.timestamp = time.time()
         self.merkle_root = self.calculate_merkle_root()
         self.nonce = 0
         self.hash = self.calculate_hash()
+        self.transaction_fees = transaction_fees
 
     def calculate_merkle_root(self):
         return hash_function(json.dumps(self.transactions))
@@ -112,11 +113,20 @@ class Block:
         block_data = f"{self.previous_hash}{self.merkle_root}{self.nonce}{self.timestamp}"
         return hash_function(block_data)
 
-    def mine_block(self, difficulty):
+    def mine_block(self, difficulty, miner_reward):
         target = "0" * difficulty
         while self.hash[:difficulty] != target:
             self.nonce += 1
             self.hash = self.calculate_hash()
+        self.reward_miner(miner_reward)
+
+    def reward_miner(self, miner_reward):
+        # Distribute transaction fees among miners
+        total_fees = sum(transaction["transaction_fee"] for transaction in self.transactions)
+        miner_reward += total_fees
+        # Distribute the reward to the miner
+        print(f"Miner rewarded with {miner_reward} points.")
+    
 
 # Class representing a blockchain
 class Blockchain:
@@ -124,11 +134,12 @@ class Blockchain:
         self.chain = [self.create_genesis_block()]
 
     def create_genesis_block(self):
-        return Block(previous_hash="0", transactions=[])
+        return Block(previous_hash="0", transactions=[], transaction_fees=0)
 
-    def add_block(self, transactions):
+    def add_block(self, transactions, transaction_fees):
         previous_block = self.chain[-1]
-        new_block = Block(previous_hash=previous_block.hash, transactions=transactions)
+        new_block = Block(previous_hash=previous_block.hash, transactions=transactions, transaction_fees=transaction_fees)
+        new_block.mine_block(difficulty=2, miner_reward=50)  # Adjust difficulty and miner_reward as needed
         self.chain.append(new_block)
 
 # Main function to run the blockchain application
@@ -150,6 +161,7 @@ def main():
             sender = input("Enter sender: ")
             receiver = input("Enter receiver: ")
             amount = float(input("Enter amount: "))
+            transaction_fee = float(input("Enter transaction fee: "))
 
             # Encrypt data and create a digital signature
             encrypted_data = encrypt(json.dumps({"sender": sender, "receiver": receiver, "amount": amount}), public_key)
@@ -159,13 +171,8 @@ def main():
             formatted_timestamp = format_timestamp(timestamp)
 
             # Create a transaction and add it to the blockchain
-            transaction = {"encrypted_data": encrypted_data, "signature": signature, "timestamp": formatted_timestamp}
-            new_block = Block(previous_hash=blockchain.chain[-1].hash, transactions=[transaction])
-            
-            # Mine the block with a difficulty of 2 (you can adjust this)
-            new_block.mine_block(2)
-
-            blockchain.chain.append(new_block)
+            transaction = {"encrypted_data": encrypted_data, "signature": signature, "timestamp": formatted_timestamp, "transaction_fee": transaction_fee}
+            blockchain.add_block([transaction], transaction_fee)
 
             print("Transaction added successfully.")
 
@@ -185,6 +192,7 @@ def main():
                     print(f"  Amount: {json.loads(decrypted_data)['amount']}")
                     print(f"  Digital Signature: {'Valid' if is_valid_signature else 'Invalid'}")
                     print(f"  Timestamp: {transaction['timestamp']}")
+                    print(f"  Transaction Fee: {transaction['transaction_fee']}")
 
         elif choice == "3":
             break
