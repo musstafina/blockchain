@@ -139,7 +139,7 @@ class Blockchain:
     def add_block(self, transactions, transaction_fees):
         previous_block = self.chain[-1]
         new_block = Block(previous_hash=previous_block.hash, transactions=transactions, transaction_fees=transaction_fees)
-        new_block.mine_block(difficulty=2, miner_reward=50)  # Adjust difficulty and miner_reward as needed
+        new_block.mine_block(difficulty=2, miner_reward=0)  # Adjust difficulty and miner_reward as needed
         self.chain.append(new_block)
 
 # Main function to run the blockchain application
