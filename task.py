@@ -109,8 +109,14 @@ class Block:
         return hash_function(json.dumps(self.transactions))
 
     def calculate_hash(self):
-        block_data = f"{self.previous_hash}{self.merkle_root}{self.nonce}"
+        block_data = f"{self.previous_hash}{self.merkle_root}{self.nonce}{self.timestamp}"
         return hash_function(block_data)
+
+    def mine_block(self, difficulty):
+        target = "0" * difficulty
+        while self.hash[:difficulty] != target:
+            self.nonce += 1
+            self.hash = self.calculate_hash()
 
 # Class representing a blockchain
 class Blockchain:
@@ -154,7 +160,12 @@ def main():
 
             # Create a transaction and add it to the blockchain
             transaction = {"encrypted_data": encrypted_data, "signature": signature, "timestamp": formatted_timestamp}
-            blockchain.add_block([transaction])
+            new_block = Block(previous_hash=blockchain.chain[-1].hash, transactions=[transaction])
+            
+            # Mine the block with a difficulty of 2 (you can adjust this)
+            new_block.mine_block(2)
+
+            blockchain.chain.append(new_block)
 
             print("Transaction added successfully.")
 
