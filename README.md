@@ -28,6 +28,8 @@ The project is organized into the following components:
   - The `main` function serves as the entry point of the program, providing a menu for users to add transactions, display the blockchain, or exit.
 - **Bonus Features:**
   - Proof-of-Work (PoW): Each block in the blockchain is mined with a proof-of-work mechanism, adding a level of security.
+  - Decentralization: Our blockchain boasts a decentralized structure, eliminating reliance on a central server for enhanced security and resilience.
+  - Mining Process: Miners actively participate in the transaction process and are rewarded with gas, promoting a dynamic and self-sustaining blockchain ecosystem.
 
 ## Usage
 
