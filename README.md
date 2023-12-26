@@ -26,6 +26,8 @@ The project is organized into the following components:
 
 - **Main Program (Task 3):**
   - The `main` function serves as the entry point of the program, providing a menu for users to add transactions, display the blockchain, or exit.
+- **Bonus Features:**
+  - Proof-of-Work (PoW): Each block in the blockchain is mined with a proof-of-work mechanism, adding a level of security.
 
 ## Usage
 
